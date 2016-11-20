@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>当前位置&全景图</title>
+	<title>老有所护</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 	<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=eabiZs58oHY2Nk0qxrxwfw14UvMVsUUm"></script>
@@ -52,7 +52,8 @@
 	//每10秒钟请求一次服务器的经纬度,然后刷新显示
 	$(document).ready(function () { 
 		setInterval("refreshPosition()",10*1000); 
-		setInterval("refreshStatus()",5*1000); 
+		setInterval("refreshStatus()",15*1000); 
+		//setInterval("refreshPosStatus()",10*1000); 
 	}); 
 
 	
@@ -64,23 +65,27 @@
 			dataType: "json",
 			success: function (data) {
 			  //alert(data);
-			  map.clearOverlays(); 
+			  //map.clearOverlays(); 
 			  var longtitude = data.longtitude;
 			  var latitude = data.latitude;
 			  //alert(longtitude);
 			  //alert(latitude);
 			  currpoint = new BMap.Point(longtitude, latitude);
+			  //alert(1);
 			  panorama.setPosition(currpoint); 
-			  map.centerAndZoom(currpoint, 18);
-			  marker = new BMap.Marker(currpoint);  // 创建标注
-			  marker.enableDragging();
-			  map.addOverlay(marker); 
+			  //alert(2);
+			  var z = map.getZoom();
+			  map.centerAndZoom(currpoint, z);
+			  //marker = new BMap.Marker(currpoint);  // 创建标注
+			  marker.setPosition(currpoint);
+			  //marker.enableDragging();
+			  //map.addOverlay(marker); 
 			  
-			  map.panTo(currpoint);
-			  marker.addEventListener('dragend',function(e){
-					panorama.setPosition(e.point); //拖动marker后，全景图位置也随着改变
-					panorama.setPov({heading: -40, pitch: 6});}
-			  );
+			  //map.panTo(currpoint);
+			  //marker.addEventListener('dragend',function(e){
+				//	panorama.setPosition(e.point); //拖动marker后，全景图位置也随着改变
+				//	panorama.setPov({heading: -40, pitch: 6});}
+			  //);
 			  
 			},
 			error: function (xhr, ajaxOptions, thrownError) {
@@ -98,11 +103,25 @@
 			dataType: "json",
 			success: function (data) {
 			  //alert(data);
-			  if(data.Status != "正常" ){
-			    var infoWindow = new BMap.InfoWindow(data.Status);
-			    map.openInfoWindow(infoWindow, currpoint);
-				//beep();
-			   $('#chatAudio')[0].play();
+			  if(data.Status == "Fall" ){
+			    
+			    
+				beep();
+			    //$('#chatAudio')[0].play();
+				if(window.webkitNotifications){
+					if(window.webkitNotifications.checkPermission()==0){
+						setInterval(function(){
+							var popup = window.webkitNotifications.createNotification("avator.jpg","提醒：","当心，老人可能摔到了，请尽快与老人家联系！");
+							popup.show();
+						},1000 * 60 * 20);
+					}else{
+						window.webkitNotifications.requestPermission();
+					}
+				}else{
+					//alert('浏览器不支持桌面通知～！');
+					var infoWindow = new BMap.InfoWindow("当心，老人可能摔到了，请尽快与老人家联系！");
+			        map.openInfoWindow(infoWindow, currpoint);
+				}
 			  }
 			  
 			},

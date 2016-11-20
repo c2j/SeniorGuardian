@@ -70,7 +70,8 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         else:
             f.write("<strong>Failed:</strong>")
         f.write(info)
-        f.write("<br><a href=\"%s\">back</a>" % self.headers['referer'])
+        if 'referer' in self.headers:
+          f.write("<br><a href=\"%s\">back</a>" % self.headers['referer'])
         f.write("<hr><small>Powered By: bones7456, check new version at ")
         f.write("<a href=\"http://li2z.cn/?s=SimpleHTTPServerWithUpload\">")
         f.write("here</a>.</small></body>\n</html>\n")
@@ -98,8 +99,8 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             return (False, "Can't find out file name...")
         path = self.translate_path(self.path)
         fn = os.path.join(path, fn[0])
-        while os.path.exists(fn):
-            fn += "_"
+        #while os.path.exists(fn):
+        #    fn += "_"
         line = self.rfile.readline()
         remainbytes -= len(line)
         line = self.rfile.readline()
